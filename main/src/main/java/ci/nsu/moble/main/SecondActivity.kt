@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,9 +44,9 @@ import ci.nsu.moble.main.ui.theme.PracticeTheme
 
 
 sealed class Screen(val route: String) {
-    object Home : Screen("home")
-    object ScreenOne : Screen("screen_one")
-    object ScreenTwo : Screen("screen_two")
+    object Home : Screen("HOME")
+    object ScreenOne : Screen("SCREEN_ONE")
+    object ScreenTwo : Screen("SCREEN_TWO")
 }
 
 class SecondActivity : ComponentActivity() {
@@ -116,7 +117,7 @@ fun SecondActivityScreen() {
                 )
                 NavigationBarItem(
                     icon = { Icon(imageVector = Icons.Filled.List, contentDescription = "Screen One") },
-                    label = { Text("Screen One") },
+                    label = { Text("Screen One" ) },
                     selected = navController.currentDestination?.route == Screen.ScreenOne.route,
                     onClick = {
 
@@ -158,7 +159,7 @@ fun HomeScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Home Screen", modifier = Modifier.padding(16.dp))
+        Text(text = "Home Screen", modifier = Modifier.padding(16.dp),fontSize = 27.sp)
     }
 }
 
@@ -171,7 +172,7 @@ fun ScreenOne() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Screen One", modifier = Modifier.padding(16.dp))
+        Text(text = "Screen One", modifier = Modifier.padding(16.dp), fontSize = 20.sp)
     }
 }
 
@@ -184,7 +185,7 @@ fun ScreenTwo() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Screen Two", modifier = Modifier.padding(16.dp))
+        Text(text = "Screen Two", modifier = Modifier.padding(16.dp),fontSize = 25.sp)
     }
 }
 
