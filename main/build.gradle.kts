@@ -42,6 +42,9 @@ android {
 dependencies {
     implementation(libs.androidx.appcompat)
 
+    
+
+
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     implementation(libs.androidx.activity.compose)
@@ -51,7 +54,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     
-    // Navigation
+
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation(libs.androidx.navigation.compose)
 
