@@ -7,12 +7,21 @@
     android:padding="16dp">
 
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Счетчик"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="16dp"/>
+
+
     <ci.nsu.mobile.main.ui.main.MyView
         android:id="@+id/counterView"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:drawable/editbox_background"/>
+        android:layout_height="180dp"
+        android:layout_marginBottom="16dp"/>
 
 
     <LinearLayout
@@ -28,7 +37,8 @@
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:text="-"
-            android:textSize="24sp"/>
+            android:textSize="32sp"
+            android:padding="16dp"/>
 
         <Button
             android:id="@+id/buttonIncrement"
@@ -37,7 +47,8 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:text="+"
-            android:textSize="24sp"/>
+            android:textSize="32sp"
+            android:padding="16dp"/>
     </LinearLayout>
 
 
@@ -45,9 +56,10 @@
         android:id="@+id/buttonReset"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:text="Сброс"
-        android:textSize="18sp"/>
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@android:color/holo_red_dark"/>
 
 
     <TextView
@@ -63,5 +75,16 @@
         android:id="@+id/listViewHistory"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp"/>
+
+
+    <Button
+        android:id="@+id/buttonClearHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Очистить историю"
+        android:textSize="16sp"
+        android:backgroundTint="@android:color/holo_orange_dark"/>
+
 </LinearLayout>

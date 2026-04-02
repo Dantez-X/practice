@@ -45,4 +45,11 @@ class MainViewModel : ViewModel() {
             history = newHistory
         )
     }
+    fun clearHistory() {
+        val currentState = _uiState.value ?: CounterUiState()
+
+        _uiState.value = currentState.copy(
+            history = emptyList()
+        )
+    }
 }
