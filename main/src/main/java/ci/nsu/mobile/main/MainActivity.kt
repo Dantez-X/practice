@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ci.nsu.mobile.deposit.ui.theme.DepositCalculatorTheme
+
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -113,7 +113,7 @@ class SecondStepViewModel : ViewModel() {
         _monthlyTopUp.value = value
     }
 
-    fun getData(): Triple<Double, Double> {
+    fun getData(): Triple<Double, Double, Double> {
         return Triple(selectedRate ?: 0.0, monthlyTopUp.toDoubleOrNull() ?: 0.0)
     }
 }
