@@ -18,7 +18,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+@Composable
+fun DepositCalculatorTheme(
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        content = content
+    )
+}
 data class DepositCalculation(
     val id: Long,
     val initialAmount: Double,
@@ -113,8 +120,8 @@ class SecondStepViewModel : ViewModel() {
         _monthlyTopUp.value = value
     }
 
-    fun getData(): Triple<Double, Double, Double> {
-        return Triple(selectedRate ?: 0.0, monthlyTopUp.toDoubleOrNull() ?: 0.0)
+    fun getData(): Pair <Double, Double> {
+        return Pair(selectedRate ?: 0.0, monthlyTopUp.toDoubleOrNull() ?: 0.0)
     }
 }
 
