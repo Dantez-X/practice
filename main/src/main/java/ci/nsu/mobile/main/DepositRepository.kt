@@ -13,10 +13,12 @@ class DepositRepository(context: Context) {
 
     suspend fun saveCalculation(calculation: DepositEntity) {
         dao.insert(calculation)
+        println("Сохранено в БД: ${calculation.finalAmount}")
     }
 
     suspend fun clearHistory() {
         dao.deleteAll()
+        println("История очищена")
     }
 }
 
