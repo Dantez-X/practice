@@ -16,12 +16,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
 
+    // Репозиторий и ViewModel создаются один раз и живут всё время работы приложения
     private lateinit var repository: DepositRepository
     private lateinit var historyViewModel: HistoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Инициализация базы данных и репозитория (один раз)
         repository = DepositRepository(this)
         historyViewModel = HistoryViewModel(repository)
 
@@ -31,14 +33,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    // Текущий экран
                     var currentScreen by remember { mutableStateOf("main") }
 
+                    // Данные, которые передаются между экранами
                     var savedInitialAmount by remember { mutableStateOf(0.0) }
                     var savedPeriodMonths by remember { mutableStateOf(0) }
                     var savedInterestRate by remember { mutableStateOf(0.0) }
                     var savedMonthlyTopUp by remember { mutableStateOf(0.0) }
 
                     when (currentScreen) {
+                        // ========== ГЛАВНЫЙ ЭКРАН ==========
                         "main" -> {
                             MainScreen(
                                 onCalculateClick = { currentScreen = "first" },
@@ -46,10 +51,12 @@ class MainActivity : ComponentActivity() {
                                 onExitClick = { finish() }
                             )
                         }
+
+                        // ========== ЭКРАН 1 ==========
                         "first" -> {
-                            val vm: FirstStepViewModel = viewModel()
+                            val firstViewModel: FirstStepViewModel = viewModel()
                             FirstStepScreen(
-                                viewModel = vm,
+                                viewModel = firstViewModel,
                                 onBackClick = { currentScreen = "main" },
                                 onNextClick = { amount, months ->
                                     savedInitialAmount = amount
@@ -58,12 +65,14 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+
+                        // ========== ЭКРАН 2 ==========
                         "second" -> {
-                            val vm: SecondStepViewModel = viewModel()
+                            val secondViewModel: SecondStepViewModel = viewModel()
                             SecondStepScreen(
                                 initialAmount = savedInitialAmount,
                                 periodMonths = savedPeriodMonths,
-                                viewModel = vm,
+                                viewModel = secondViewModel,
                                 onBackClick = { currentScreen = "first" },
                                 onCalculateClick = { amount, months, rate, topUp ->
                                     savedInitialAmount = amount
@@ -74,20 +83,24 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+
+                        // ========== ЭКРАН РЕЗУЛЬТАТА ==========
                         "result" -> {
-                            val vm: ResultViewModel = viewModel()
+                            val resultViewModel: ResultViewModel = viewModel()
                             ResultScreen(
                                 initialAmount = savedInitialAmount,
                                 periodMonths = savedPeriodMonths,
                                 interestRate = savedInterestRate,
                                 monthlyTopUp = savedMonthlyTopUp,
-                                viewModel = vm,
+                                viewModel = resultViewModel,
                                 onSaveClick = { calculation ->
                                     historyViewModel.addCalculation(calculation)
                                 },
                                 onBackToMainClick = { currentScreen = "main" }
                             )
                         }
+
+                        // ========== ЭКРАН ИСТОРИИ ==========
                         "history" -> {
                             HistoryScreen(
                                 viewModel = historyViewModel,
@@ -101,6 +114,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// ==================== ГЛАВНЫЙ ЭКРАН ====================
 @Composable
 fun MainScreen(
     onCalculateClick: () -> Unit,
@@ -113,15 +127,32 @@ fun MainScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text("Расчёт вкладов", fontSize = 28.sp)
+
         Spacer(modifier = Modifier.height(48.dp))
-        Button(onClick = onCalculateClick, modifier = Modifier.fillMaxWidth()) { Text("Рассчитать") }
+
+        Button(onClick = onCalculateClick, modifier = Modifier.fillMaxWidth()) {
+            Text("Рассчитать")
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onHistoryClick, modifier = Modifier.fillMaxWidth()) { Text("История расчётов") }
+
+        Button(onClick = onHistoryClick, modifier = Modifier.fillMaxWidth()) {
+            Text("История расчётов")
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onExitClick, modifier = Modifier.fillMaxWidth()) { Text("Закрыть приложение") }
+
+        Button(
+            onClick = onExitClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text("Закрыть приложение")
+        }
     }
 }
 
+// ==================== ЭКРАН 1 ====================
 @Composable
 fun FirstStepScreen(
     viewModel: FirstStepViewModel,
@@ -133,6 +164,7 @@ fun FirstStepScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text("Параметры вклада", fontSize = 24.sp)
+
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
@@ -158,16 +190,24 @@ fun FirstStepScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = onBackClick, modifier = Modifier.weight(1f).padding(end = 8.dp)) { Text("В начало") }
+            Button(onClick = onBackClick, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                Text("В начало")
+            }
             Button(
-                onClick = { val (a, m) = viewModel.getData(); onNextClick(a, m) },
+                onClick = {
+                    val (amount, months) = viewModel.getData()
+                    onNextClick(amount, months)
+                },
                 enabled = viewModel.isNextEnabled,
                 modifier = Modifier.weight(1f).padding(start = 8.dp)
-            ) { Text("Далее") }
+            ) {
+                Text("Далее")
+            }
         }
     }
 }
 
+// ==================== ЭКРАН 2 ====================
 @Composable
 fun SecondStepScreen(
     initialAmount: Double,
@@ -176,14 +216,18 @@ fun SecondStepScreen(
     onBackClick: () -> Unit,
     onCalculateClick: (Double, Int, Double, Double) -> Unit
 ) {
-    LaunchedEffect(periodMonths) { viewModel.updatePeriodMonths(periodMonths) }
+    LaunchedEffect(periodMonths) {
+        viewModel.updatePeriodMonths(periodMonths)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text("Дополнительные параметры", fontSize = 24.sp)
+
         Spacer(modifier = Modifier.height(24.dp))
+
         Text("Процентная ставка")
 
         if (viewModel.availableRates.isNotEmpty()) {
@@ -208,21 +252,31 @@ fun SecondStepScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (viewModel.errorMessage != null) Text(viewModel.errorMessage!!, color = MaterialTheme.colorScheme.error)
+        if (viewModel.errorMessage != null) {
+            Text(viewModel.errorMessage!!, color = MaterialTheme.colorScheme.error)
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = onBackClick, modifier = Modifier.weight(1f).padding(end = 8.dp)) { Text("Назад") }
+            Button(onClick = onBackClick, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                Text("Назад")
+            }
             Button(
-                onClick = { val (r, t) = viewModel.getData(); onCalculateClick(initialAmount, periodMonths, r, t) },
+                onClick = {
+                    val (rate, topUp) = viewModel.getData()
+                    onCalculateClick(initialAmount, periodMonths, rate, topUp)
+                },
                 enabled = viewModel.isCalculateEnabled,
                 modifier = Modifier.weight(1f).padding(start = 8.dp)
-            ) { Text("Рассчитать") }
+            ) {
+                Text("Рассчитать")
+            }
         }
     }
 }
 
+// ==================== ЭКРАН РЕЗУЛЬТАТА ====================
 @Composable
 fun ResultScreen(
     initialAmount: Double,
@@ -233,13 +287,16 @@ fun ResultScreen(
     onSaveClick: (DepositEntity) -> Unit,
     onBackToMainClick: () -> Unit
 ) {
-    LaunchedEffect(Unit) { viewModel.calculate(initialAmount, periodMonths, interestRate, monthlyTopUp) }
+    LaunchedEffect(Unit) {
+        viewModel.calculate(initialAmount, periodMonths, interestRate, monthlyTopUp)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text("Результат расчёта", fontSize = 24.sp)
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Card(modifier = Modifier.fillMaxWidth()) {
@@ -247,10 +304,15 @@ fun ResultScreen(
                 Text("Стартовый взнос: ${String.format("%.2f", viewModel.initialAmount)} ₽")
                 Text("Срок: ${viewModel.periodMonths} месяцев")
                 Text("Процентная ставка: ${viewModel.interestRate}%")
-                if (viewModel.monthlyTopUp > 0) Text("Ежемесячное пополнение: ${String.format("%.2f", viewModel.monthlyTopUp)} ₽")
+                if (viewModel.monthlyTopUp > 0) {
+                    Text("Ежемесячное пополнение: ${String.format("%.2f", viewModel.monthlyTopUp)} ₽")
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Divider()
-                Text("Итоговая сумма: ${String.format("%.2f", viewModel.finalAmount)} ₽")
+                Text(
+                    "Итоговая сумма: ${String.format("%.2f", viewModel.finalAmount)} ₽",
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Text("Начисленные проценты: ${String.format("%.2f", viewModel.interestEarned)} ₽")
             }
         }
@@ -258,12 +320,23 @@ fun ResultScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = { onSaveClick(viewModel.getDepositEntity()) }, modifier = Modifier.weight(1f).padding(end = 8.dp)) { Text("Сохранить") }
-            Button(onClick = onBackToMainClick, modifier = Modifier.weight(1f).padding(start = 8.dp)) { Text("В начало") }
+            Button(
+                onClick = { onSaveClick(viewModel.getDepositEntity()) },
+                modifier = Modifier.weight(1f).padding(end = 8.dp)
+            ) {
+                Text("Сохранить")
+            }
+            Button(
+                onClick = onBackToMainClick,
+                modifier = Modifier.weight(1f).padding(start = 8.dp)
+            ) {
+                Text("В начало")
+            }
         }
     }
 }
 
+// ==================== ЭКРАН ИСТОРИИ ====================
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel,
@@ -271,8 +344,11 @@ fun HistoryScreen(
 ) {
     val calculations by viewModel.calculations.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp)
+    ) {
         Text("История расчётов", fontSize = 24.sp)
+
         Spacer(modifier = Modifier.height(16.dp))
 
         if (calculations.isEmpty()) {
@@ -280,7 +356,9 @@ fun HistoryScreen(
         } else {
             LazyColumn {
                 items(calculations) { calc ->
-                    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                    ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(formatDate(calc.calculationDate), fontSize = 12.sp)
                             Text("Стартовый взнос: ${String.format("%.2f", calc.initialAmount)} ₽")
@@ -292,10 +370,14 @@ fun HistoryScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onBackClick, modifier = Modifier.fillMaxWidth()) { Text("На главную") }
+
+        Button(onClick = onBackClick, modifier = Modifier.fillMaxWidth()) {
+            Text("На главную")
+        }
     }
 }
 
+// ==================== ФОРМАТИРОВАНИЕ ДАТЫ ====================
 fun formatDate(timestamp: Long): String {
     val format = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault())
     return format.format(java.util.Date(timestamp))

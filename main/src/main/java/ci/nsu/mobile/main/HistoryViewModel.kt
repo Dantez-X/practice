@@ -16,11 +16,13 @@ class HistoryViewModel(
 
     init {
         loadCalculations()
+        println("HistoryViewModel создан")
     }
 
     private fun loadCalculations() {
         viewModelScope.launch {
             repository.getAllCalculations().collect { list ->
+                println("Загружено записей: ${list.size}")
                 _calculations.value = list
             }
         }
@@ -28,14 +30,17 @@ class HistoryViewModel(
 
     fun addCalculation(calculation: DepositEntity) {
         viewModelScope.launch {
+            println("Добавляем расчёт: ${calculation.finalAmount}")
             repository.saveCalculation(calculation)
 
+            loadCalculations()
         }
     }
 
     fun clearHistory() {
         viewModelScope.launch {
             repository.clearHistory()
+            loadCalculations()
         }
     }
 }
