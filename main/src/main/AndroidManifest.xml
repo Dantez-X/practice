@@ -7,7 +7,7 @@
         android:theme="@style/Theme.Draft">
 
         <activity
-            android:name="ci.nsu.mobile.deposit.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>

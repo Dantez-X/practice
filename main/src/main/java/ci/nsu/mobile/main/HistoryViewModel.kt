@@ -15,14 +15,13 @@ class HistoryViewModel(
     val calculations: StateFlow<List<DepositEntity>> = _calculations.asStateFlow()
 
     init {
+        // Загружаем данные при создании ViewModel
         loadCalculations()
-        println("HistoryViewModel создан")
     }
 
-    private fun loadCalculations() {
+    fun loadCalculations() {
         viewModelScope.launch {
             repository.getAllCalculations().collect { list ->
-                println("Загружено записей: ${list.size}")
                 _calculations.value = list
             }
         }
@@ -30,9 +29,8 @@ class HistoryViewModel(
 
     fun addCalculation(calculation: DepositEntity) {
         viewModelScope.launch {
-            println("Добавляем расчёт: ${calculation.finalAmount}")
             repository.saveCalculation(calculation)
-
+            // Перезагружаем после сохранения
             loadCalculations()
         }
     }
