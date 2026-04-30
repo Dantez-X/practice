@@ -37,7 +37,7 @@ class SecondStepViewModel : ViewModel() {
     fun getData(): Pair<Double, Double> {
         return Pair(selectedRate ?: 0.0, monthlyTopUp.toDoubleOrNull() ?: 0.0)
     }
-    fun clear() {
+    fun resetData() {
         _monthlyTopUp.value = ""
     }
 }
