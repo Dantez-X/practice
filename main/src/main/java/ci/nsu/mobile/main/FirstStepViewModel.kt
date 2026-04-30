@@ -41,5 +41,11 @@ class FirstStepViewModel : ViewModel() {
     fun getData(): Pair<Double, Int> {
         return Pair(initialAmount.toDoubleOrNull() ?: 0.0, periodMonths.toIntOrNull() ?: 0)
     }
+    fun clear() {
+        _initialAmount.value = ""
+        _periodMonths.value = ""
+        _initialAmountError.value = null
+        _periodError.value = null
+    }
 }
 

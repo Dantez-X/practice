@@ -47,7 +47,14 @@ class MainActivity : ComponentActivity() {
 
                         "main" -> {
                             MainScreen(
-                                onCalculateClick = { currentScreen = "first" },
+                                onCalculateClick = {
+
+                                    savedInitialAmount = 0.0
+                                    savedPeriodMonths = 0
+                                    savedInterestRate = 0.0
+                                    savedMonthlyTopUp = 0.0
+                                    currentScreen = "first"
+                                },
                                 onHistoryClick = { currentScreen = "history" },
                                 onExitClick = { finish() }
                             )
@@ -55,7 +62,8 @@ class MainActivity : ComponentActivity() {
 
 
                         "first" -> {
-                            val firstViewModel: FirstStepViewModel = viewModel()
+
+                            val firstViewModel = remember { FirstStepViewModel() }
                             FirstStepScreen(
                                 viewModel = firstViewModel,
                                 onBackClick = { currentScreen = "main" },
@@ -66,15 +74,16 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-
-
                         "second" -> {
                             val secondViewModel: SecondStepViewModel = viewModel()
                             SecondStepScreen(
                                 initialAmount = savedInitialAmount,
                                 periodMonths = savedPeriodMonths,
                                 viewModel = secondViewModel,
-                                onBackClick = { currentScreen = "first" },
+                                onBackClick = {
+                                    secondViewModel.clear()  // ← ОЧИЩАЕМ ПРИ ВОЗВРАТЕ
+                                    currentScreen = "first"
+                                },
                                 onCalculateClick = { amount, months, rate, topUp ->
                                     savedInitialAmount = amount
                                     savedPeriodMonths = months
@@ -84,8 +93,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-
-
                         "result" -> {
                             val resultViewModel: ResultViewModel = viewModel()
                             ResultScreen(
@@ -97,7 +104,13 @@ class MainActivity : ComponentActivity() {
                                 onSaveClick = { calculation ->
                                     historyViewModel.addCalculation(calculation)
                                 },
-                                onBackToMainClick = { currentScreen = "main" }
+                                onBackToMainClick = {
+                                    savedInitialAmount = 0.0
+                                    savedPeriodMonths = 0
+                                    savedInterestRate = 0.0
+                                    savedMonthlyTopUp = 0.0
+                                    currentScreen = "main"
+                                }
                             )
                         }
 
