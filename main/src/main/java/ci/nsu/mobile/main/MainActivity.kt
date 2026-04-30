@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     var savedMonthlyTopUp by remember { mutableStateOf(0.0) }
 
                     when (currentScreen) {
-                        // ========== ГЛАВНЫЙ ЭКРАН ==========
+
                         "main" -> {
                             MainScreen(
                                 onCalculateClick = { currentScreen = "first" },
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // ========== ЭКРАН 1 ==========
+
                         "first" -> {
                             val firstViewModel: FirstStepViewModel = viewModel()
                             FirstStepScreen(
@@ -66,7 +67,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // ========== ЭКРАН 2 ==========
+
                         "second" -> {
                             val secondViewModel: SecondStepViewModel = viewModel()
                             SecondStepScreen(
@@ -84,7 +85,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // ========== ЭКРАН РЕЗУЛЬТАТА ==========
+
                         "result" -> {
                             val resultViewModel: ResultViewModel = viewModel()
                             ResultScreen(
@@ -100,7 +101,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // ========== ЭКРАН ИСТОРИИ ==========
+
                         "history" -> {
                             HistoryScreen(
                                 viewModel = historyViewModel,
@@ -114,7 +115,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ==================== ГЛАВНЫЙ ЭКРАН ====================
+
 @Composable
 fun MainScreen(
     onCalculateClick: () -> Unit,
@@ -152,7 +153,7 @@ fun MainScreen(
     }
 }
 
-// ==================== ЭКРАН 1 ====================
+
 @Composable
 fun FirstStepScreen(
     viewModel: FirstStepViewModel,
@@ -207,7 +208,7 @@ fun FirstStepScreen(
     }
 }
 
-// ==================== ЭКРАН 2 ====================
+
 @Composable
 fun SecondStepScreen(
     initialAmount: Double,
@@ -276,7 +277,7 @@ fun SecondStepScreen(
     }
 }
 
-// ==================== ЭКРАН РЕЗУЛЬТАТА ====================
+
 @Composable
 fun ResultScreen(
     initialAmount: Double,
@@ -290,6 +291,8 @@ fun ResultScreen(
     LaunchedEffect(Unit) {
         viewModel.calculate(initialAmount, periodMonths, interestRate, monthlyTopUp)
     }
+
+    var showSavedMessage by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -309,10 +312,7 @@ fun ResultScreen(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Divider()
-                Text(
-                    "Итоговая сумма: ${String.format("%.2f", viewModel.finalAmount)} ₽",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text("Итоговая сумма: ${String.format("%.2f", viewModel.finalAmount)} ₽")
                 Text("Начисленные проценты: ${String.format("%.2f", viewModel.interestEarned)} ₽")
             }
         }
@@ -321,7 +321,12 @@ fun ResultScreen(
 
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
-                onClick = { onSaveClick(viewModel.getDepositEntity()) },
+                onClick = {
+                    if (viewModel.canSave()) {
+                        onSaveClick(viewModel.getDepositEntity())
+                        showSavedMessage = true
+                    }
+                },
                 modifier = Modifier.weight(1f).padding(end = 8.dp)
             ) {
                 Text("Сохранить")
@@ -333,10 +338,19 @@ fun ResultScreen(
                 Text("В начало")
             }
         }
+
+        if (showSavedMessage) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = " Расчёт сохранён!",
+                color = Color.Green,
+                fontSize = 14.sp
+            )
+        }
     }
 }
 
-// ==================== ЭКРАН ИСТОРИИ ====================
+
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel,
@@ -352,12 +366,28 @@ fun HistoryScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (calculations.isEmpty()) {
-            Text("Нет сохранённых расчётов")
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Нет сохранённых расчётов")
+            }
         } else {
-            LazyColumn {
-                items(calculations) { calc ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = calculations,
+                    key = { it.id }
+                ) { calc ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(2.dp)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(formatDate(calc.calculationDate), fontSize = 12.sp)
@@ -371,13 +401,26 @@ fun HistoryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (calculations.isNotEmpty()) {
+            Button(
+                onClick = { viewModel.clearHistory() },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Очистить всю историю")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         Button(onClick = onBackClick, modifier = Modifier.fillMaxWidth()) {
             Text("На главную")
         }
     }
 }
 
-// ==================== ФОРМАТИРОВАНИЕ ДАТЫ ====================
+// Добавьте эту функцию в конец файла, если её нет
 fun formatDate(timestamp: Long): String {
     val format = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault())
     return format.format(java.util.Date(timestamp))
