@@ -1,5 +1,6 @@
-package com.example.labapiauth
+package com.example.yourapp.network
 
+import com.example.yourapp.model.*
 import retrofit2.http.*
 
 interface ApiService {
