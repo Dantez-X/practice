@@ -1,26 +1,51 @@
-package com.example.labapiauth
+package com.example.yourapp.auth
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-class TokenManager(private val context: Context) {
+class TokenManager(context: Context) {
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
-    companion object {
-        private const val PREF_NAME = "auth_prefs"
-        private const val KEY_TOKEN = "jwt_token"
-    }
-
-    private val prefs = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
     var token: String?
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) {
-            prefs.edit().putString(KEY_TOKEN, value).apply()
+            if (value == null) {
+                prefs.edit().remove(KEY_TOKEN).apply()
+                _isLoggedIn.value = false
+            } else {
+                prefs.edit().putString(KEY_TOKEN, value).apply()
+                _isLoggedIn.value = true
+            }
         }
 
     fun clear() {
         prefs.edit().clear().apply()
+        _isLoggedIn.value = false
     }
 
-    fun isLoggedIn(): Boolean = !token.isNullOrEmpty()
+    fun checkAndUpdateLoginState() {
+        _isLoggedIn.value = !token.isNullOrEmpty()
+    }
+
+    companion object {
+        private const val KEY_TOKEN = "jwt_token"
+
+        @Volatile
+        private var instance: TokenManager? = null
+
+        fun getInstance(context: Context): TokenManager {
+            return instance ?: synchronized(this) {
+                instance ?: TokenManager(context.applicationContext).also {
+                    instance = it
+                }
+            }
+        }
+    }
 }
