@@ -1,6 +1,5 @@
-package com.example.yourapp.network
+package ci.nsu.mobile.main.model
 
-import com.example.yourapp.auth.TokenManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
