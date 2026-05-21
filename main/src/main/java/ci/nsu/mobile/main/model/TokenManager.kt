@@ -1,4 +1,4 @@
-package com.example.yourapp.auth
+package ci.nsu.mobile.main.model
 
 import android.content.Context
 import android.content.SharedPreferences
