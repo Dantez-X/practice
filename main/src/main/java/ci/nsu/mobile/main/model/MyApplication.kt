@@ -1,11 +1,6 @@
-package ci.nsu.mobile.main
+package ci.nsu.mobile.main.model
 
 import android.app.Application
-import ci.nsu.mobile.main.auth.TokenManager
-import ci.nsu.mobile.main.model.ApiService
-import ci.nsu.mobile.main.model.AuthRepositoryImpl
-import ci.nsu.mobile.main.model.RetrofitClient
-import ci.nsu.mobile.main.repository.AuthRepository
 
 class MyApplication : Application() {
     lateinit var authRepository: AuthRepository
@@ -15,8 +10,7 @@ class MyApplication : Application() {
         super.onCreate()
 
         tokenManager = TokenManager(this)
-        val apiService: ApiService = RetrofitClient.getInstance(tokenManager)
+        val apiService = RetrofitClient.getInstance(tokenManager)
         authRepository = AuthRepositoryImpl(apiService)
     }
 }
-

@@ -6,9 +6,9 @@ import java.io.IOException
 
 class AuthRepositoryImpl(
     private val apiService: ApiService
-) {
+) : AuthRepository {
 
-    suspend fun login(login: String, password: String): Result<LoginResponse> {
+    override suspend fun login(login: String, password: String): Result<LoginResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val request = LoginRequest(login, password)
@@ -20,7 +20,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    suspend fun register(request: RegisterRequest): Result<Unit> {
+    override suspend fun register(request: RegisterRequest): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.register(request)
@@ -35,7 +35,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    suspend fun getUsers(): Result<List<UserDto>> {
+    override suspend fun getUsers(): Result<List<UserDto>> {
         return withContext(Dispatchers.IO) {
             try {
                 val users = apiService.getUsers()
@@ -46,7 +46,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    suspend fun getGroups(): Result<List<GroupDto>> {
+    override suspend fun getGroups(): Result<List<GroupDto>> {
         return withContext(Dispatchers.IO) {
             try {
                 val groups = apiService.getGroups()
